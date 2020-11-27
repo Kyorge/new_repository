@@ -16,15 +16,15 @@ int main ( int argc, char** argv ) {
 
     }
 
-    int *fd = ( int* ) calloc ( argc - 1, sizeof ( int ) );
+    int *fds = ( int* ) calloc ( argc - 1, sizeof ( int ) );
     int i = 0;
     struct pollfd *pfds = ( struct pollfd* ) calloc ( argc - 1, sizeof ( struct pollfd ) );
 
     for ( i = 1; i < argc; i++) {
 
-        fd[i - 1] = mkfifo ( argv[i], O_CREAT | 0666 );
-        fd[i - 1] = open(argv[i], O_NONBLOCK);
-        pfds[i - 1].fd = fd[i - 1];
+        fds[i - 1] = mkfifo ( argv[i], O_CREAT | 0666 );
+        fds[i - 1] = open(argv[i], O_NONBLOCK);
+        pfds[i - 1].fd = fds[i - 1];
         pfds[i - 1].events = POLLIN;
 
     }
@@ -35,8 +35,8 @@ int main ( int argc, char** argv ) {
         struct stat stats;
         fstat ( pfds[i].fd, &stats );
         char* buf = ( char* ) calloc ( stats.st_size, sizeof ( char ) );
-        read ( pfds[i].fd, &buf, stats.st_size );
-        write ( STDOUT_FILENO, &buf, stats.st_size );
+        read ( pfds[i].fd, buf, stats.st_size );
+        write ( STDOUT_FILENO, buf, stats.st_size );
         free ( buf );
 
     }
@@ -47,7 +47,7 @@ int main ( int argc, char** argv ) {
 
     }
     
-    free ( fd );
+    free ( fds );
     free ( pfds );
     
 }
